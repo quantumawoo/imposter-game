@@ -63,6 +63,17 @@
       margin-top: 1.5rem;
       font-weight: bold;
     }
+
+    button.imposter-btn {
+    background: #e53935;
+    color: #fff;
+    }
+  
+    button.word-btn {
+    background: #4fc3f7;
+    color: #000;
+    }
+
   </style>
 </head>
 <body>
@@ -112,8 +123,12 @@
   
     <div id="imposterReveal"></div>
   
-    <button id="wordRevealBtn" onclick="handleWordReveal()">
-      Ask Imposter(s) if they guessed the word
+    <button
+    id="wordRevealBtn"
+    class="word-btn"
+    onclick="handleWordReveal()"
+    >
+      Reveal Word
     </button>
   
     <div id="wordResult" class="role"></div>
@@ -134,6 +149,9 @@
   let selectedPair = null;
   let imposterIndices = [];
   let wordRevealStep = 0;
+  let wordRevealState = 0; // 0 = Reveal, 1 = Ask, 2 = Shown
+  let wordEverRevealed = false;
+
 
   const setup = document.getElementById("setup");
   const safety = document.getElementById("safety");
@@ -238,6 +256,7 @@
 
   imposterIndices.forEach((index, i) => {
     const btn = document.createElement("button");
+    btn.classList.add("imposter-btn");
     btn.innerText = `Reveal Imposter ${i + 1}`;
     let revealed = false;
 
@@ -252,17 +271,38 @@
   };
       imposterReveal.appendChild(btn);
     });
+
+    wordRevealState = 0;
+    wordEverRevealed = false;
+    wordResult.innerText = "";
+    wordRevealBtn.innerText = "Reveal Word";
   }
 
-  function handleWordReveal() {
-    if (wordRevealStep === 0) {
-      wordRevealBtn.innerText = "Reveal the word";
-      wordRevealStep++;
-    } else {
-      wordResult.innerText = `The word was: ${selectedPair.word}`;
-      wordRevealBtn.disabled = true;
-    }
+function handleWordReveal() {
+  if (wordRevealState === 0) {
+    // Reveal → Ask
+    wordRevealBtn.innerText = "Ask Imposters for Guesses";
+    wordRevealState = 1;
+
+  } else if (wordRevealState === 1) {
+    // Ask → Show word
+    wordResult.innerText = `The word was: ${selectedPair.word}`;
+    wordRevealBtn.innerText = "Hide Word";
+    wordRevealState = 2;
+    wordEverRevealed = true;
+
+  } else {
+    // Hide → Reset
+    wordResult.innerText = "";
+    wordRevealBtn.innerText = "Reveal Word";
+    wordRevealState = 0;
   }
+
+  // Add asterisk if the word has ever been revealed
+  if (wordEverRevealed && !wordRevealBtn.innerText.includes("*")) {
+    wordRevealBtn.innerText += " *";
+  }
+}
 
   function confirmRestart() {
     const confirmReset = confirm(
@@ -277,6 +317,7 @@
 
 </body>
 </html>
+
 
 
 
