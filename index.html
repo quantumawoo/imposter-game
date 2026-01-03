@@ -151,7 +151,7 @@
   let wordRevealStep = 0;
   let wordRevealState = 0; // 0 = Reveal, 1 = Ask, 2 = Shown
   let wordEverRevealed = false;
-
+  let imposterEverRevealed = false;
 
   const setup = document.getElementById("setup");
   const safety = document.getElementById("safety");
@@ -251,26 +251,37 @@
   function goToRevealPhase() {
   end.classList.add("hidden");
   revealPhase.classList.remove("hidden");
+  imposterEverRevealed = false;
 
   imposterReveal.innerHTML = "";
 
   imposterIndices.forEach((index, i) => {
     const btn = document.createElement("button");
     btn.classList.add("imposter-btn");
-    btn.innerText = `Reveal Imposter ${i + 1}`;
+  
     let revealed = false;
+  
+    btn.innerText = `Reveal Imposter ${i + 1}`;
+  
+    btn.onclick = () => {
+      if (!revealed) {
+        btn.innerText = `Imposter ${i + 1}: Player ${index + 1}`;
+        revealed = true;
+        imposterEverRevealed = true;
+      } else {
+        btn.innerText = `Reveal Imposter ${i + 1}`;
+        revealed = false;
+      }
+  
+      // Add asterisk if any imposter has ever been revealed
+      if (imposterEverRevealed && !btn.innerText.includes("*")) {
+        btn.innerText += " *";
+      }
+    };
 
-  btn.onclick = () => {
-    if (!revealed) {
-      btn.innerText = `Player ${index + 1}`;
-      revealed = true;
-    } else {
-      btn.innerText = `Reveal Imposter ${i + 1}`;
-      revealed = false;
-    }
-  };
-      imposterReveal.appendChild(btn);
-    });
+  imposterReveal.appendChild(btn);
+});
+
 
     wordRevealState = 0;
     wordEverRevealed = false;
@@ -317,6 +328,7 @@ function handleWordReveal() {
 
 </body>
 </html>
+
 
 
 
