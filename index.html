@@ -108,11 +108,14 @@
 
 </div>
 
+<script src="words.js"></script>
+  
 <script>
   let roles = [];
   let currentPlayer = 0;
   let totalPlayers = 0;
   let startingPlayer = 0;
+  let selectedPair = null;
 
   const setup = document.getElementById("setup");
   const safety = document.getElementById("safety");
@@ -132,6 +135,11 @@
     imposterInput.value = count >= 7 ? 2 : 1;
   });
 
+  function pickRandomWord() {
+  const index = Math.floor(Math.random() * WORD_PAIRS.length);
+  selectedPair = WORD_PAIRS[index];
+}
+  
   function startGame() {
     totalPlayers = parseInt(playerInput.value);
     const imposterCount = parseInt(imposterInput.value);
@@ -157,6 +165,8 @@
       }
     }
 
+    pickRandomWord();
+    
     // Pick starting player (1-based)
     startingPlayer = Math.floor(Math.random() * totalPlayers) + 1;
 
@@ -192,3 +202,4 @@
 
 </body>
 </html>
+
