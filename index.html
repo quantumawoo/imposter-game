@@ -103,9 +103,25 @@
   <div id="end" class="hidden">
     <h2>All roles assigned</h2>
     <p id="starterText"></p>
-    <button class="secondary" onclick="location.reload()">Play Again</button>
+    <button onclick="goToRevealPhase()">Go to Reveal Phase</button>
   </div>
 
+  <!-- REVEAL PHASE -->
+  <div id="revealPhase" class="hidden">
+    <h2>Reveal Phase</h2>
+  
+    <div id="imposterReveal"></div>
+  
+    <button id="wordRevealBtn" onclick="handleWordReveal()">
+      Ask Imposter(s) if they guessed the word
+    </button>
+  
+    <div id="wordResult" class="role"></div>
+  
+    <button class="secondary" onclick="confirmRestart()">
+      Play Again
+    </button>
+  </div>
 </div>
 
 <script src="words.js"></script>
@@ -116,6 +132,8 @@
   let totalPlayers = 0;
   let startingPlayer = 0;
   let selectedPair = null;
+  let imposterIndices = [];
+  let wordRevealStep = 0;
 
   const setup = document.getElementById("setup");
   const safety = document.getElementById("safety");
@@ -128,6 +146,12 @@
 
   const playerInput = document.getElementById("playerCount");
   const imposterInput = document.getElementById("imposterCount");
+
+  const revealPhase = document.getElementById("revealPhase");
+  const imposterReveal = document.getElementById("imposterReveal");
+  const wordRevealBtn = document.getElementById("wordRevealBtn");
+  const wordResult = document.getElementById("wordResult");
+
 
   // Auto-adjust imposters
   playerInput.addEventListener("change", () => {
@@ -155,12 +179,14 @@
     }
 
     roles = Array(totalPlayers).fill("Civilian");
+    imposterIndices = [];
 
     let assigned = 0;
     while (assigned < imposterCount) {
       const index = Math.floor(Math.random() * totalPlayers);
       if (roles[index] === "Civilian") {
         roles[index] = "IMPOSTER";
+        imposterIndices.push(index);
         assigned++;
       }
     }
@@ -203,9 +229,54 @@
       showSafety();
     }
   }
+
+  function goToRevealPhase() {
+  end.classList.add("hidden");
+  revealPhase.classList.remove("hidden");
+
+  imposterReveal.innerHTML = "";
+
+  imposterIndices.forEach((index, i) => {
+    const btn = document.createElement("button");
+    btn.innerText = `Reveal Imposter ${i + 1}`;
+    let revealed = false;
+
+  btn.onclick = () => {
+    if (!revealed) {
+      btn.innerText = `Player ${index + 1}`;
+      revealed = true;
+    } else {
+      btn.innerText = `Reveal Imposter ${i + 1}`;
+      revealed = false;
+    }
+  };
+      imposterReveal.appendChild(btn);
+    });
+  }
+
+  function handleWordReveal() {
+    if (wordRevealStep === 0) {
+      wordRevealBtn.innerText = "Reveal the word";
+      wordRevealStep++;
+    } else {
+      wordResult.innerText = `The word was: ${selectedPair.word}`;
+      wordRevealBtn.disabled = true;
+    }
+  }
+
+  function confirmRestart() {
+    const confirmReset = confirm(
+      "Are you sure? This will reset the game."
+    );
+    if (confirmReset) {
+      location.reload();
+    }
+  }
+
 </script>
 
 </body>
 </html>
+
 
 
