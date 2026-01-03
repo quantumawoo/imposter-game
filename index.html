@@ -182,10 +182,15 @@
   }
 
   function revealRole() {
-    safety.classList.add("hidden");
-    reveal.classList.remove("hidden");
-    roleText.innerText = roles[currentPlayer];
+  safety.classList.add("hidden");
+  reveal.classList.remove("hidden");
+
+  if (roles[currentPlayer] === "IMPOSTER") {
+    roleText.innerText = `IMPOSTER\nHint: ${selectedPair.hint}`;
+  } else {
+    roleText.innerText = `Civilian\nWord: ${selectedPair.word}`;
   }
+}
 
   function hideAndPass() {
     currentPlayer++;
@@ -202,4 +207,5 @@
 
 </body>
 </html>
+
 
