@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Imposter – Prototype 1</title>
+  <title>Imposter – Prototype</title>
 
   <style>
     body {
@@ -17,13 +17,13 @@
       margin: 0;
       text-align: center;
     }
-
+  
     .card {
       background: #1e1e1e;
       padding: 2rem;
       border-radius: 12px;
       width: 90%;
-      max-width: 400px;
+      max-width: 420px;
     }
 
     button {
@@ -45,80 +45,145 @@
     input {
       padding: 0.5rem;
       font-size: 1rem;
-      width: 60%;
+      width: 80px;
       text-align: center;
+      margin-top: 0.5rem;
+    }
+
+    .row {
       margin-top: 1rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .role {
+      font-size: 1.8rem;
+      margin-top: 1.5rem;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-  <div class="card" id="app">
+<div class="card">
+
+  <!-- SETUP -->
+  <div id="setup">
     <h1>Imposter</h1>
 
-    <div id="setup">
+    <div class="row">
       <p>Number of players</p>
       <input type="number" id="playerCount" min="3" value="4" />
-      <br />
-      <button onclick="startGame()">Start Game</button>
     </div>
 
-    <div id="reveal" style="display:none;">
-      <h2 id="playerTitle"></h2>
-      <p id="roleText" style="font-size:1.5rem; margin-top:1rem;"></p>
-      <button onclick="nextPlayer()">Next Player</button>
+    <div class="row">
+      <p>Number of imposters</p>
+      <input type="number" id="imposterCount" min="1" value="1" />
     </div>
 
-    <div id="end" style="display:none;">
-      <h2>All roles assigned</h2>
-      <p>Pass the device back and begin the game.</p>
-      <button class="secondary" onclick="location.reload()">Play Again</button>
-    </div>
+    <button onclick="startGame()">Start Game</button>
   </div>
 
-  <script>
-    let roles = [];
-    let currentPlayer = 0;
-    let totalPlayers = 0;
+  <!-- SAFETY SCREEN -->
+  <div id="safety" class="hidden">
+    <h2 id="playerLabel"></h2>
+    <p>Tap when you're ready to see your role</p>
+    <button onclick="revealRole()">Reveal Role</button>
+  </div>
 
-    function startGame() {
-      totalPlayers = parseInt(document.getElementById("playerCount").value);
+  <!-- ROLE REVEAL -->
+  <div id="reveal" class="hidden">
+    <div id="roleText" class="role"></div>
+    <button class="secondary" onclick="hideAndPass()">Hide & Pass</button>
+  </div>
 
-      if (totalPlayers < 3) {
-        alert("Minimum 3 players required.");
-        return;
+  <!-- END -->
+  <div id="end" class="hidden">
+    <h2>All roles assigned</h2>
+    <p>Pass the device back and begin.</p>
+    <button class="secondary" onclick="location.reload()">Play Again</button>
+  </div>
+
+</div>
+
+<script>
+  let roles = [];
+  let currentPlayer = 0;
+  let totalPlayers = 0;
+
+  const setup = document.getElementById("setup");
+  const safety = document.getElementById("safety");
+  const reveal = document.getElementById("reveal");
+  const end = document.getElementById("end");
+
+  const playerLabel = document.getElementById("playerLabel");
+  const roleText = document.getElementById("roleText");
+
+  const playerInput = document.getElementById("playerCount");
+  const imposterInput = document.getElementById("imposterCount");
+
+  // Auto-adjust imposters based on player count
+  playerInput.addEventListener("change", () => {
+    const count = parseInt(playerInput.value);
+    imposterInput.value = count >= 7 ? 2 : 1;
+  });
+
+  function startGame() {
+    totalPlayers = parseInt(playerInput.value);
+    const imposterCount = parseInt(imposterInput.value);
+
+    if (totalPlayers < 3) {
+      alert("Minimum 3 players required.");
+      return;
+    }
+
+    if (imposterCount >= totalPlayers) {
+      alert("Too many imposters.");
+      return;
+    }
+
+    roles = Array(totalPlayers).fill("Civilian");
+
+    // Randomly assign imposters
+    let assigned = 0;
+    while (assigned < imposterCount) {
+      const index = Math.floor(Math.random() * totalPlayers);
+      if (roles[index] === "Civilian") {
+        roles[index] = "IMPOSTER";
+        assigned++;
       }
-
-      roles = Array(totalPlayers).fill("Civilian");
-      const imposterIndex = Math.floor(Math.random() * totalPlayers);
-      roles[imposterIndex] = "IMPOSTER";
-
-      currentPlayer = 0;
-
-      document.getElementById("setup").style.display = "none";
-      document.getElementById("reveal").style.display = "block";
-
-      showRole();
     }
 
-    function showRole() {
-      document.getElementById("playerTitle").innerText =
-        `Player ${currentPlayer + 1}`;
-      document.getElementById("roleText").innerText =
-        roles[currentPlayer];
-    }
+    currentPlayer = 0;
+    setup.classList.add("hidden");
+    showSafety();
+  }
 
-    function nextPlayer() {
-      currentPlayer++;
+  function showSafety() {
+    playerLabel.innerText = `Player ${currentPlayer + 1}`;
+    safety.classList.remove("hidden");
+    reveal.classList.add("hidden");
+  }
 
-      if (currentPlayer >= totalPlayers) {
-        document.getElementById("reveal").style.display = "none";
-        document.getElementById("end").style.display = "block";
-      } else {
-        showRole();
-      }
+  function revealRole() {
+    safety.classList.add("hidden");
+    reveal.classList.remove("hidden");
+    roleText.innerText = roles[currentPlayer];
+  }
+
+  function hideAndPass() {
+    currentPlayer++;
+
+    if (currentPlayer >= totalPlayers) {
+      reveal.classList.add("hidden");
+      end.classList.remove("hidden");
+    } else {
+      showSafety();
     }
-  </script>
+  }
+</script>
 
 </body>
 </html>
