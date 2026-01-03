@@ -17,7 +17,7 @@
       margin: 0;
       text-align: center;
     }
-  
+
     .card {
       background: #1e1e1e;
       padding: 2rem;
@@ -102,7 +102,7 @@
   <!-- END -->
   <div id="end" class="hidden">
     <h2>All roles assigned</h2>
-    <p>Pass the device back and begin.</p>
+    <p id="starterText"></p>
     <button class="secondary" onclick="location.reload()">Play Again</button>
   </div>
 
@@ -112,6 +112,7 @@
   let roles = [];
   let currentPlayer = 0;
   let totalPlayers = 0;
+  let startingPlayer = 0;
 
   const setup = document.getElementById("setup");
   const safety = document.getElementById("safety");
@@ -120,11 +121,12 @@
 
   const playerLabel = document.getElementById("playerLabel");
   const roleText = document.getElementById("roleText");
+  const starterText = document.getElementById("starterText");
 
   const playerInput = document.getElementById("playerCount");
   const imposterInput = document.getElementById("imposterCount");
 
-  // Auto-adjust imposters based on player count
+  // Auto-adjust imposters
   playerInput.addEventListener("change", () => {
     const count = parseInt(playerInput.value);
     imposterInput.value = count >= 7 ? 2 : 1;
@@ -146,7 +148,6 @@
 
     roles = Array(totalPlayers).fill("Civilian");
 
-    // Randomly assign imposters
     let assigned = 0;
     while (assigned < imposterCount) {
       const index = Math.floor(Math.random() * totalPlayers);
@@ -155,6 +156,9 @@
         assigned++;
       }
     }
+
+    // Pick starting player (1-based)
+    startingPlayer = Math.floor(Math.random() * totalPlayers) + 1;
 
     currentPlayer = 0;
     setup.classList.add("hidden");
@@ -179,6 +183,7 @@
     if (currentPlayer >= totalPlayers) {
       reveal.classList.add("hidden");
       end.classList.remove("hidden");
+      starterText.innerText = `Starting Player: Player ${startingPlayer}`;
     } else {
       showSafety();
     }
