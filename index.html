@@ -147,6 +147,7 @@
   let totalPlayers = 0;
   let startingPlayer = 0;
   let selectedPair = null;
+  
   let imposterIndices = [];
   let wordRevealStep = 0;
   let wordRevealState = 0; // 0 = Reveal, 1 = Ask, 2 = Shown
@@ -170,6 +171,7 @@
   const wordRevealBtn = document.getElementById("wordRevealBtn");
   const wordResult = document.getElementById("wordResult");
 
+  let restartArmed = false;
 
   // Auto-adjust imposters
   playerInput.addEventListener("change", () => {
@@ -287,6 +289,9 @@
     wordEverRevealed = false;
     wordResult.innerText = "";
     wordRevealBtn.innerText = "Reveal Word";
+  
+    restartArmed = false;
+    document.querySelector("button.secondary").innerText = "Play Again";
   }
 
 function handleWordReveal() {
@@ -316,18 +321,21 @@ function handleWordReveal() {
 }
 
   function confirmRestart() {
-    const confirmReset = confirm(
-      "Are you sure? This will reset the game."
-    );
-    if (confirmReset) {
-      location.reload();
+    if (!restartArmed) {
+      restartArmed = true;
+      const btn = event.target;
+      btn.innerText = "Tap again to confirm restart";
+      return;
     }
+  
+    location.reload();
   }
 
 </script>
 
 </body>
 </html>
+
 
 
 
