@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Imposter – Prototype 1</title>
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #111;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+
+    .card {
+      background: #1e1e1e;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    button {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: #4caf50;
+      color: #000;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: #444;
+      color: #fff;
+    }
+
+    input {
+      padding: 0.5rem;
+      font-size: 1rem;
+      width: 60%;
+      text-align: center;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="app">
+    <h1>Imposter</h1>
+
+    <div id="setup">
+      <p>Number of players</p>
+      <input type="number" id="playerCount" min="3" value="4" />
+      <br />
+      <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <div id="reveal" style="display:none;">
+      <h2 id="playerTitle"></h2>
+      <p id="roleText" style="font-size:1.5rem; margin-top:1rem;"></p>
+      <button onclick="nextPlayer()">Next Player</button>
+    </div>
+
+    <div id="end" style="display:none;">
+      <h2>All roles assigned</h2>
+      <p>Pass the device back and begin the game.</p>
+      <button class="secondary" onclick="location.reload()">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    let roles = [];
+    let currentPlayer = 0;
+    let totalPlayers = 0;
+
+    function startGame() {
+      totalPlayers = parseInt(document.getElementById("playerCount").value);
+
+      if (totalPlayers < 3) {
+        alert("Minimum 3 players required.");
+        return;
+      }
+
+      roles = Array(totalPlayers).fill("Civilian");
+      const imposterIndex = Math.floor(Math.random() * totalPlayers);
+      roles[imposterIndex] = "IMPOSTER";
+
+      currentPlayer = 0;
+
+      document.getElementById("setup").style.display = "none";
+      document.getElementById("reveal").style.display = "block";
+
+      showRole();
+    }
+
+    function showRole() {
+      document.getElementById("playerTitle").innerText =
+        `Player ${currentPlayer + 1}`;
+      document.getElementById("roleText").innerText =
+        roles[currentPlayer];
+    }
+
+    function nextPlayer() {
+      currentPlayer++;
+
+      if (currentPlayer >= totalPlayers) {
+        document.getElementById("reveal").style.display = "none";
+        document.getElementById("end").style.display = "block";
+      } else {
+        showRole();
+      }
+    }
+  </script>
+
+</body>
+</html>
